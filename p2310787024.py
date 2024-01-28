@@ -4,6 +4,8 @@ import numpy as np
 #defining variance parameters
 def braking_distance(mass, velocity, road_type, wet_dry, inclination):
 
+    #hello
+
     # Derive braking distance formula and constants
     g = 9.81  # acceleration due to gravity (m/s^2)
     friction_coefficient = 0.7  # coefficient of friction
@@ -21,9 +23,10 @@ def braking_distance(mass, velocity, road_type, wet_dry, inclination):
 def simulate_braking_distance(mass, velocity, road_type, wet_dry, inclination, simulation_time=10):
     time_values = np.linspace(0, simulation_time, num=100)
     distance_values = []
+    velocity_values = []
 
     for time in time_values:
-        distance = braking_distance(mass, velocity, road_type, wetness, inclination) * time
+        distance = braking_distance(mass, velocity, road_type, wet_dry, inclination) * time
         distance_values.append(distance)
 
     return time_values, distance_values
@@ -41,7 +44,7 @@ if __name__ == "__main__":
     arg_parser.add_argument("--mass", type=float, default=1000, help="Mass of the vehicle (kg)")
     arg_parser.add_argument("--velocity", type=float, default=30, help="Initial velocity (m/s)")
     arg_parser.add_argument("--road_type", choices=['dry', 'wet'], default='dry', help="Type of road surface")
-    arg_parser.add_argument("--wetness", type=float, default=0.0, help="Wetness level (0 to 1)")
+    arg_parser.add_argument("--wet_dry", type=float, default=0.0, help="Wet_dry level (0 to 1)")
     arg_parser.add_argument("--inclination", type=float, default=0.0, help="Road inclination (degrees)")
 
     cmd_call_args = arg_parser.parse_args()
@@ -50,7 +53,7 @@ if __name__ == "__main__":
     print("Mass:", cmd_call_args.mass)
     print("Velocity:", cmd_call_args.velocity)
     print("Road Type:", cmd_call_args.road_type)
-    print("Wetness:", cmd_call_args.wetness)
+    print("Wet_dry:", cmd_call_args.wet_dry)
     print("Inclination:", cmd_call_args.inclination)
 
     # Simulate braking distance and plot the results
@@ -58,8 +61,9 @@ if __name__ == "__main__":
         cmd_call_args.mass,
         cmd_call_args.velocity,
         cmd_call_args.road_type,
-        cmd_call_args.wetness,
+        cmd_call_args.wet_dry,
         cmd_call_args.inclination
     )
 
     plot_simulation_results(time_values, distance_values)
+    plot_simulation_results(time_values, velocity_values)
