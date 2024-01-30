@@ -1,69 +1,55 @@
-import argparse
+__doc__='calculatying and plotting the braking distance'
+
 import matplotlib.pyplot as plt
-import numpy as np
-#defining variance parameters
-def braking_distance(mass, velocity, road_type, wet_dry, inclination):
 
-    #hello
+def get_friction_coefficient(road_type, wet_dry):
+  mu = {
+    'concrete': {'dry': 0.5, 'wet': 0.35},
+    'ice': {'dry': 0.15, 'wet': 0.08},}
+  return mu[road_type][wet_dry]
 
-    # Derive braking distance formula and constants
-    g = 9.81  # acceleration due to gravity (m/s^2)
-    friction_coefficient = 0.7  # coefficient of friction
-    
-    braking_distance = (velocity**2) / (2 * g * friction_coefficient)
+def main():
+  # Get user input
+  velocity = float(input('Enter the initial velocity (m/s): '))
+  road_type = input('Enter the road type (concrete/ice): ').lower()
+  wet_dry = input('Enter the road condition (dry/wet): ').lower()
 
-    # Adjust braking distance based on other parameters
-    if road_type == 'wet':
-        braking_distance *= 1.2  # Increase braking distance on wet roads
-    if inclination > 0:
-        braking_distance += inclination * 0.1  # Increase braking distance on inclines
-    
-    return braking_distance
+  gravity = 9.8
+  time_step = 0.1
+  distance = 0
+  friction_coefficient = get_friction_coefficient(road_type, wet_dry)
 
-def simulate_braking_distance(mass, velocity, road_type, wet_dry, inclination, simulation_time=10):
-    time_values = np.linspace(0, simulation_time, num=100)
-    distance_values = []
-    velocity_values = []
+  distance_values = [0]
+  time_values = [0]
+  velocity_values = [velocity]
 
-    for time in time_values:
-        distance = braking_distance(mass, velocity, road_type, wet_dry, inclination) * time
-        distance_values.append(distance)
+  while velocity > 0:
+    velocity -= friction_coefficient * gravity * time_step
+    distance += velocity * time_step
 
-    return time_values, distance_values
+    time_values.append(time_values[-1] + time_step)
+    velocity_values.append(velocity)
+    distance_values.append(distance)
 
-def plot_simulation_results(time_values, distance_values):
-    plt.plot(time_values, distance_values)
-    plt.title('Braking Distance Simulation')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Distance (m)')
-    plt.grid(True)
-    plt.show()
+  plot_simulation_results(time_values, distance_values, velocity_values)
 
-if __name__ == "__main__":
-    arg_parser = argparse.ArgumentParser(description="Simulate braking distance.")
-    arg_parser.add_argument("--mass", type=float, default=1000, help="Mass of the vehicle (kg)")
-    arg_parser.add_argument("--velocity", type=float, default=30, help="Initial velocity (m/s)")
-    arg_parser.add_argument("--road_type", choices=['dry', 'wet'], default='dry', help="Type of road surface")
-    arg_parser.add_argument("--wet_dry", type=float, default=0.0, help="Wet_dry level (0 to 1)")
-    arg_parser.add_argument("--inclination", type=float, default=0.0, help="Road inclination (degrees)")
+def plot_simulation_results(time_values, distance_values, velocity_values):
+  plt.subplot(2, 1, 1)
+  plt.plot(time_values, distance_values)
+  plt.title('Braking Distance Simulation')
+  plt.xlabel('Time (s)')
+  plt.ylabel('Distance (m)')
+  plt.grid(True)
 
-    cmd_call_args = arg_parser.parse_args()
+  plt.subplot(2, 1, 2)
+  plt.plot(time_values, velocity_values)
+  plt.title('Velocity vs. Time')
+  plt.xlabel('Time (s)')
+  plt.ylabel('Velocity (m/s)')
+  plt.grid(True)
 
-    # Print the value of the summand_a parameter
-    print("Mass:", cmd_call_args.mass)
-    print("Velocity:", cmd_call_args.velocity)
-    print("Road Type:", cmd_call_args.road_type)
-    print("Wet_dry:", cmd_call_args.wet_dry)
-    print("Inclination:", cmd_call_args.inclination)
+  plt.tight_layout()
+  plt.show()
 
-    # Simulate braking distance and plot the results
-    time_values, distance_values = simulate_braking_distance(
-        cmd_call_args.mass,
-        cmd_call_args.velocity,
-        cmd_call_args.road_type,
-        cmd_call_args.wet_dry,
-        cmd_call_args.inclination
-    )
-
-    plot_simulation_results(time_values, distance_values)
-    plot_simulation_results(time_values, velocity_values)
+if __name__ == '__main__':
+  main()
